@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Shop - Доставка</title>
+    <link rel="stylesheet" href="css
+    /style.css">
+</head>
+<body>
+
+<header class="header">
+    <a href="index.html" class="logo-link">
+        <div class="logo" style="background-image: url('img/logo.png');"></div>
+    </a>
+
+    <nav class="nav">
+        <a href="auth.html" id="auth-link">Вход/регистрация</a>
+        <a href="promotions.html">Акции</a>
+        <a href="delivery.html" class="active">Доставка</a>
+        <a href="admin.html">Админ панель</a>
+        <a href="profile.html" id="profile-link" style="display: none;">Личный кабинет</a>
+    </nav>
+
+    <div class="search">
+        <input type="text" placeholder="Найти...">
+        <button>ОК</button>
+    </div>
+</header>
+
+<div class="wrapper">
+
+    <main class="content">
+        <section class="delivery-section">
+            <h1>Доставка Волшебных Товаров</h1>
+            
+            <div class="delivery-info">
+                <div class="delivery-method">
+                    <h3>📦 СДЭК</h3>
+                    <p>Быстрая доставка по России от 1 дня</p>
+                    <span class="price">350 рублей</span>
+                </div>
+
+                <div class="delivery-method">
+                    <h3>🚚 Яндекс Доставка</h3>
+                    <p>Мгновенное курьерское обслуживание</p>
+                    <span class="price">500 рублей</span>
+                </div>
+
+                <div class="delivery-method">
+                    <h3>📮 Почта России</h3>
+                    <p>Доставка в отдаленные районы</p>
+                    <span class="price">250 рублей</span>
+                </div>
+            </div>
+
+            <div class="delivery-terms">
+                <h3>Условия доставки:</h3>
+                <ul>
+                    <li>Минимальная сумма заказа: 1000 рублей</li>
+                    <li>Бесплатная доставка при заказе от 3000 рублей</li>
+                    <li>Возврат товаров в течение 7 дней</li>
+                    <li>Конфиденциальность гарантируется</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+</div>
+
+<footer class="footer">
+    <div class="footer-content">
+        Адрес: Улица Привет Драйв, дом 7, Лондон<br>
+        Телефон: +7 (900) 123-45-67<br>
+        Email: magicshop@hogwarts.mail<br>
+        © 2026 Магазин волшебства. Все права защищены.
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const authLink = document.getElementById('auth-link');
+        const profileLink = document.getElementById('profile-link');
+        
+        if (isLoggedIn === 'true') {
+            authLink.style.display = 'none';
+            profileLink.style.display = 'inline';
+        }
+    });
+</script>
+
+</body>
+</html>

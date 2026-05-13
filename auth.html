@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Shop - Вход/Регистрация</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-secret {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+        }
+        .admin-secret-btn {
+            background: transparent;
+            border: none;
+            color: #999;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .admin-secret-btn:hover {
+            color: #800000;
+        }
+        .admin-create-form {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        .admin-create-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .admin-create-form button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <a href="index.html" class="logo-link">
+        <div class="logo" style="background-image: url('img/logo.png');"></div>
+    </a>
+
+    <nav class="nav">
+        <a href="auth.html" class="active">Вход/регистрация</a>
+        <a href="promotions.html">Акции</a>
+        <a href="delivery.html">Доставка</a>
+        <a href="admin.html">Админ панель</a>
+        <a href="profile.html" id="profile-link" style="display: none;">Личный кабинет</a>
+    </nav>
+
+    <div class="search">
+        <input type="text" placeholder="Найти...">
+        <button>ОК</button>
+    </div>
+</header>
+
+<div class="wrapper">
+
+    <main class="content">
+        <section class="auth-section">
+            <div class="auth-container">
+                <div class="auth-tabs">
+                    <button class="tab-btn active" data-tab="login">Вход</button>
+                    <button class="tab-btn" data-tab="register">Регистрация</button>
+                </div>
+
+                <div class="auth-forms">
+                    <!-- ФОРМА ВХОДА -->
+                    <form class="auth-form active" id="login-form">
+                        <h2>Вход в магический мир</h2>
+                        <input type="email" id="login-email" placeholder="Ваш email" required>
+                        <input type="password" id="login-password" placeholder="Пароль" required>
+                        <button type="submit" class="auth-submit">Войти</button>
+                    </form>
+
+                    <!-- ФОРМА РЕГИСТРАЦИИ -->
+                    <form class="auth-form" id="register-form">
+                        <h2>Стать частью магии</h2>
+                        <input type="text" id="register-name" placeholder="Имя" required>
+                        <input type="email" id="register-email" placeholder="Email" required>
+                        <input type="password" id="register-password" placeholder="Пароль" required>
+                        <input type="password" id="register-confirm" placeholder="Подтвердите пароль" required>
+                        <button type="submit" class="auth-submit">Зарегистрироваться</button>
+                    </form>
+                </div>
+
+                <!-- СЕКРЕТНАЯ КНОПКА ДЛЯ АДМИНА -->
+                <div class="admin-secret">
+                    <button type="button" class="admin-secret-btn" onclick="toggleAdminForm()">🔧 Администратор</button>
+                    <div id="adminCreateForm" class="admin-create-form">
+                        <h4 style="color:#5D1717; margin-bottom:10px;">Создать администратора</h4>
+                        <input type="text" id="admin-name" placeholder="Имя администратора">
+                        <input type="email" id="admin-email" placeholder="Email">
+                        <input type="password" id="admin-password" placeholder="Пароль">
+                        <button type="button" onclick="createAdmin()">Создать администратора</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</div>
+
+<footer class="footer">
+    <div class="footer-content">
+        Адрес: Улица Привет Драйв, дом 7, Лондон<br>
+        Телефон: +7 (900) 123-45-67<br>
+        Email: magicshop@hogwarts.mail<br>
+        © 2026 Магазин волшебства. Все права защищены.
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthStatus();
+        setupAuthForms();
+    });
+
+    function checkAuthStatus() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const profileLink = document.getElementById('profile-link');
+        
+        if (isLoggedIn === 'true') {
+            profileLink.style.display = 'inline';
+        }
+    }
+
+    function toggleAdminForm() {
+        const form = document.getElementById('adminCreateForm');
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    }
+
+    function createAdmin() {
+        const name = document.getElementById('admin-name').value;
+        const email = document.getElementById('admin-email').value;
+        const password = document.getElementById('admin-password').value;
+
+        if (!name || !email || !password) {
+            alert('Заполните все поля');
+            return;
+        }
+
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+
+        if (users.find(u => u.email === email)) {
+            alert('Пользователь с таким email уже существует');
+            return;
+        }
+
+        const newAdmin = {
+            id: Date.now(),
+            name: name,
+            email: email,
+            password: password,
+            role: 'admin',
+            registrationDate: new Date().toISOString()
+        };
+
+        users.push(newAdmin);
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        alert('✅ Администратор создан! Теперь вы можете войти.');
+        
+        // Очищаем поля и скрываем форму
+        document.getElementById('admin-name').value = '';
+        document.getElementById('admin-email').value = '';
+        document.getElementById('admin-password').value = '';
+        document.getElementById('adminCreateForm').style.display = 'none';
+        
+        // Переключаемся на форму входа
+        document.querySelector('.tab-btn[data-tab="login"]').click();
+        document.getElementById('login-email').value = email;
+        document.getElementById('login-password').value = '';
+    }
+
+    function setupAuthForms() {
+        // Переключение между вкладками
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`${tab}-form`).classList.add('active');
+            });
+        });
+
+        // Вход
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                alert(`Добро пожаловать, ${user.name}! ${user.role === 'admin' ? 'Вы вошли как администратор.' : ''}`);
+                window.location.href = 'index.html';
+            } else {
+                alert('Неверный email или пароль');
+            }
+        });
+
+        // Регистрация - ПЕРВЫЙ ПОЛЬЗОВАТЕЛЬ СТАНОВИТСЯ АДМИНОМ
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+
+            if (password !== confirm) {
+                alert('Пароли не совпадают');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+
+            if (users.find(u => u.email === email)) {
+                alert('Пользователь с таким email уже существует');
+                return;
+            }
+
+            // ПРОВЕРКА: если это первый пользователь - он становится АДМИНОМ
+            const isFirstUser = users.length === 0;
+            const role = isFirstUser ? 'admin' : 'user';
+
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                password: password,
+                role: role,
+                registrationDate: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            if (isFirstUser) {
+                alert('🎉 Вы первый пользователь! Вам автоматически назначена роль АДМИНИСТРАТОРА.');
+            } else {
+                alert('Регистрация успешна! Теперь вы можете войти.');
+            }
+            
+            // Переключаемся на форму входа
+            document.querySelector('.tab-btn[data-tab="login"]').click();
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').value = '';
+        });
+    }
+</script>
+
+</body>
+</html>
