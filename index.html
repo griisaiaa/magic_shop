@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic Shop - Главная</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+    <a href="index.html" class="logo-link">
+        <div class="logo" style="background-image: url('img/logo.png');"></div>
+    </a>
+
+    <nav class="nav">
+        <a href="auth.html" id="auth-link">Вход/регистрация</a>
+        <a href="promotions.html">Акции</a>
+        <a href="delivery.html">Доставка</a>
+        <a href="admin.html">Админ панель</a>
+        <a href="profile.html" id="profile-link" style="display: none;">Личный кабинет</a>
+    </nav>
+
+    <div class="search">
+        <input type="text" placeholder="Найти...">
+        <button>ОК</button>
+    </div>
+</header>
+
+<div class="wrapper">
+
+    <main class="content">
+
+        <section class="welcome">
+            <p>Добро пожаловать в наш волшебный магазин по вселенной Гарри Поттера!</p>
+        </section>
+
+        <section class="details-cards">
+            <div class="detail-card gryffindor" style="background-image: url('img/wands-category.jpg');">
+                <button class="detail-btn gryffindor-btn" onclick="location.href='products.html?category=wands'">Палочки</button>
+            </div>
+            <div class="detail-card slytherin" style="background-image: url('img/robes-category.avif');">
+                <button class="detail-btn slytherin-btn" onclick="location.href='products.html?category=robes'">Мантии</button>
+            </div>
+            <div class="detail-card hufflepuff" style="background-image: url('img/brooms-category.jpg');">
+                <button class="detail-btn hufflepuff-btn" onclick="location.href='products.html?category=brooms'">Метлы</button>
+            </div>
+        </section>
+
+        <section class="products">
+            <div class="product-card" style="background-image: url('img/wand-vine.jpg');" onclick="showProductModal('Волшебная палочка из виноградной лозы', 'Идеальная для заклинаний защиты', 1500, 'wands', 'img/wand-vine.jpg')">
+                <div class="buy-label">Купить</div>
+            </div>
+            <div class="product-card" style="background-image: url('img/wand-phoenix.jpg');" onclick="showProductModal('Палочка из перья феникса', 'Редкая и мощная палочка', 3000, 'wands', 'img/wand-phoenix.jpg')">
+                <div class="buy-label">Купить</div>
+            </div>
+            <div class="product-card" style="background-image: url('img/wand-dragon.jpg');" onclick="showProductModal('Палочка из сердца дракона', 'Для сложных заклинаний', 2500, 'wands', 'img/wand-dragon.jpg')">
+                <div class="buy-label">Купить</div>
+            </div>
+            <div class="product-card" style="background-image: url('img/robe-gryffindor.jpg');" onclick="showProductModal('Мантия Гриффиндора', 'Традиционная мантия с гербом', 2000, 'robes', 'img/robe-gryffindor.jpg')">
+                <div class="buy-label">Купить</div>
+            </div>
+            <div class="product-card" style="background-image: url('img/robe-slytherin.jpg');" onclick="showProductModal('Мантия Слизерина', 'Элегантная зеленая мантия', 1800, 'robes', 'img/robe-slytherin.jpg')">
+                <div class="buy-label">Купить</div>
+            </div>
+            <div class="product-card" style="background-image: url('img/robe-ravenclaw.jpg');" onclick="showProductModal('Мантия Когтеврана', 'Синяя мантия с орлом', 1900, 'robes', 'img/robe-ravenclaw.jpg')">
+                <div class="buy-label">Купить</div>
+            </div>
+            <div class="product-card" style="background-image: url('img/broom-nimbus.jpg');" onclick="showProductModal('Метла Нимбус 2000', 'Самая быстрая метла сезона', 5000, 'brooms', 'img/broom-nimbus.jpg')">
+                <div class="buy-label">Купить</div>
+            </div>
+            <div class="product-card" style="background-image: url('img/broom-firebolt.jpg');" onclick="showProductModal('Метла Огненная молния', 'Профессиональная гоночная метла', 8000, 'brooms', 'img/broom-firebolt.jpg')">
+                <div class="buy-label">Купить</div>
+            </div>
+        </section>
+
+    </main>
+
+    <aside class="scroll-gallery">
+        <div class="photo" style="background-image: url('img/gallery1.jpg');"></div>
+        <div class="photo" style="background-image: url('img/gallery2.jpg');"></div>
+        <div class="photo" style="background-image: url('img/gallery3.jpg');"></div>
+        <div class="photo" style="background-image: url('img/gallery4.jpg');"></div>
+        <div class="photo" style="background-image: url('img/gallery5.jpg');"></div>
+    </aside>
+
+</div>
+
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modal-title">Название товара</h2>
+        <div class="product-modal-body">
+            <div class="product-image" id="modal-image"></div>
+            <div class="product-info">
+                <p id="modal-description">Описание товара</p>
+                <p class="product-price" id="modal-price">Цена: 0 рублей</p>
+                <div class="quantity-selector">
+                    <label>Количество:</label>
+                    <input type="number" id="quantity" value="1" min="1" max="10">
+                </div>
+                <button class="add-to-cart-btn" onclick="addToCart()">Добавить в корзину</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-content">
+        Адрес: Улица Привет Драйв, дом 7, Лондон<br>
+        Телефон: +7 (900) 123-45-67<br>
+        Email: magicshop@hogwarts.mail<br>
+        © 6 Магазин волшебства. Все права защищены.
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        checkAuthStatus();
+    });
+
+    function checkAuthStatus() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const authLink = document.getElementById('auth-link');
+        const profileLink = document.getElementById('profile-link');
+        
+        if (isLoggedIn === 'true') {
+            authLink.style.display = 'none';
+            profileLink.style.display = 'inline';
+        }
+    }
+
+    const modal = document.getElementById('productModal');
+    const closeBtn = document.querySelector('.close');
+
+    function showProductModal(title, description, price, category, imageUrl) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-description').textContent = description;
+        document.getElementById('modal-price').textContent = `Цена: ${price} рублей`;
+        document.getElementById('quantity').value = 1;
+
+        const productImage = document.getElementById('modal-image');
+        productImage.style.backgroundImage = `url('${imageUrl}')`;
+
+        modal.currentProduct = { 
+            title, 
+            description, 
+            price, 
+            category, 
+            imageUrl 
+        };
+        
+        modal.style.display = 'block';
+    }
+
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    function addToCart() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        if (isLoggedIn !== 'true') {
+            alert('Пожалуйста, войдите в систему чтобы добавить товар в корзину');
+            location.href = 'auth.html';
+            return;
+        }
+
+        const quantity = parseInt(document.getElementById('quantity').value);
+        const product = modal.currentProduct;
+
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItem = cart.find(item => item.title === product.title);
+        
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            cart.push({
+                ...product,
+                quantity: quantity
+            });
+        }
+        
+        localStorage.setItem('cart', JSON.stringify(cart));
+        alert('Товар добавлен в корзину!');
+        modal.style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
