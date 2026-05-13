@@ -4,7 +4,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Shop - Личный кабинет</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .cart-item {
+            display: flex;
+            gap: 20px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .cart-item-image {
+            width: 100px;
+            height: 100px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .cart-item-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        .cart-item-info h4 {
+            color: #5D1717;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        .cart-item-info p {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+        }
+        .cart-item-price {
+            color: #800000;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        .cart-item-actions button {
+            background: #800000;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        .cart-item-actions button:hover {
+            background: #5a0000;
+        }
+        .cart-item-actions span {
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .remove-btn {
+            background: #dc3545 !important;
+            width: auto !important;
+            border-radius: 8px !important;
+            padding: 8px 15px !important;
+            font-size: 14px !important;
+        }
+        .remove-btn:hover {
+            background: #c82333 !important;
+        }
+        .cart-total {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 3px solid #800000;
+        }
+        .cart-total strong {
+            font-size: 1.3em;
+            color: #5D1717;
+            display: block;
+            margin-bottom: 15px;
+        }
+        .checkout-btn {
+            background: linear-gradient(135deg, #800000, #a52a2a);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(128,0,0,0.3);
+        }
+        .empty-cart {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            background: white;
+            border-radius: 15px;
+        }
+        @media (max-width: 600px) {
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            .cart-item-image {
+                margin: 0 auto;
+            }
+            .cart-item-actions {
+                justify-content: center;
+                margin-top: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -12,7 +138,6 @@
     <a href="index.html" class="logo-link">
         <div class="logo" style="background-image: url('img/logo.png');"></div>
     </a>
-
     <nav class="nav">
         <a href="auth.html" id="auth-link" style="display: none;">Вход/регистрация</a>
         <a href="promotions.html">Акции</a>
@@ -20,7 +145,6 @@
         <a href="admin.html">Админ панель</a>
         <a href="profile.html" class="active">Личный кабинет</a>
     </nav>
-
     <div class="search">
         <input type="text" placeholder="Найти...">
         <button>ОК</button>
@@ -28,7 +152,6 @@
 </header>
 
 <div class="wrapper">
-
     <main class="content">
         <section class="profile-section">
             <h1>Личный кабинет</h1>
@@ -49,8 +172,8 @@
 
                 <div class="profile-tab-content" id="cart-tab">
                     <h3>Корзина покупок</h3>
-                    <div class="cart-items" id="cart-items"></div>
-                    <div class="cart-total" id="cart-total"></div>
+                    <div id="cart-items"></div>
+                    <div id="cart-total"></div>
                 </div>
 
                 <div class="profile-tab-content" id="favorites-tab">
@@ -64,7 +187,6 @@
             </div>
         </section>
     </main>
-
 </div>
 
 <footer class="footer">
@@ -72,7 +194,7 @@
         Адрес: Улица Привет Драйв, дом 7, Лондон<br>
         Телефон: +7 (900) 123-45-67<br>
         Email: magicshop@hogwarts.mail<br>
-        © 2026 Магазин волшебства. Все права защищены.
+        © 2025 Магазин волшебства. Все права защищены.
     </div>
 </footer>
 
@@ -106,7 +228,7 @@
                 <div class="user-card">
                     <h2>${escapeHtml(currentUser.name)}</h2>
                     <p><strong>Email:</strong> ${escapeHtml(currentUser.email)}</p>
-                    <p><strong>Роль:</strong> ${currentUser.role === 'admin' ? 'Администратор' : 'Волшебник'}</p>
+                    <p><strong>Роль:</strong> ${currentUser.role === 'admin' ? '👑 Администратор' : '🧙 Волшебник'}</p>
                     <p><strong>Дата регистрации:</strong> ${new Date(currentUser.registrationDate).toLocaleDateString()}</p>
                 </div>
             `;
@@ -122,7 +244,6 @@
                 btn.classList.add('active');
                 document.getElementById(`${tab}-tab`).classList.add('active');
                 
-                // Обновляем данные при переключении
                 if (tab === 'cart') loadCart();
                 if (tab === 'orders') loadOrders();
                 if (tab === 'favorites') loadFavorites();
@@ -130,15 +251,20 @@
         });
     }
 
-    // ========== КОРЗИНА ==========
+    // ========== КОРЗИНА С ФОТОГРАФИЯМИ ==========
     function loadCart() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const container = document.getElementById('cart-items');
         const totalContainer = document.getElementById('cart-total');
         
         if (cart.length === 0) {
-            container.innerHTML = '<p>Ваша корзина пуста</p>';
-            totalContainer.innerHTML = '<strong>Общая сумма: 0 рублей</strong><button class="checkout-btn" onclick="checkout()">Оформить заказ</button>';
+            container.innerHTML = '<div class="empty-cart">🛒 Ваша корзина пуста</div>';
+            totalContainer.innerHTML = `
+                <div class="cart-total">
+                    <strong>Общая сумма: 0 рублей</strong>
+                    <button class="checkout-btn" onclick="checkout()">Оформить заказ</button>
+                </div>
+            `;
             return;
         }
 
@@ -146,26 +272,31 @@
         container.innerHTML = cart.map((item, index) => {
             const itemTotal = item.price * item.quantity;
             total += itemTotal;
+            const imageUrl = item.imageUrl || 'img/placeholder.jpg';
+            
             return `
                 <div class="cart-item" data-index="${index}">
+                    <div class="cart-item-image" style="background-image: url('${imageUrl}')"></div>
                     <div class="cart-item-info">
                         <h4>${escapeHtml(item.title)}</h4>
-                        <p>${escapeHtml(item.description)}</p>
-                        <div class="cart-item-price">${item.price} рублей × ${item.quantity} = ${itemTotal} рублей</div>
+                        <p>${escapeHtml(item.description || 'Волшебный товар')}</p>
+                        <div class="cart-item-price">${item.price} ₽ × ${item.quantity} = ${itemTotal} ₽</div>
                     </div>
                     <div class="cart-item-actions">
-                        <button onclick="updateQuantity(${index}, -1)">-</button>
+                        <button onclick="updateQuantity(${index}, -1)">−</button>
                         <span>${item.quantity}</span>
                         <button onclick="updateQuantity(${index}, 1)">+</button>
-                        <button class="remove-btn" onclick="removeFromCart(${index})">Удалить</button>
+                        <button class="remove-btn" onclick="removeFromCart(${index})">🗑️ Удалить</button>
                     </div>
                 </div>
             `;
         }).join('');
 
         totalContainer.innerHTML = `
-            <strong>Общая сумма: ${total} рублей</strong>
-            <button class="checkout-btn" onclick="checkout()">Оформить заказ</button>
+            <div class="cart-total">
+                <strong>💰 Общая сумма: ${total} рублей</strong>
+                <button class="checkout-btn" onclick="checkout()">📦 Оформить заказ</button>
+            </div>
         `;
     }
 
@@ -203,6 +334,7 @@
         const orders = JSON.parse(localStorage.getItem('orders')) || [];
         const newOrder = {
             id: Date.now(),
+            userId: currentUser.id,
             date: new Date().toISOString(),
             items: [...cart],
             total: total,
@@ -214,7 +346,7 @@
         localStorage.setItem('orders', JSON.stringify(orders));
         localStorage.setItem('cart', '[]');
         
-        alert(`Заказ оформлен! Сумма: ${total} рублей. Номер заказа: ${newOrder.id}`);
+        alert(`✅ Заказ оформлен!\n📦 Сумма: ${total} рублей\n📍 Адрес: ${address}\n🆔 Номер заказа: ${newOrder.id}`);
         loadCart();
         loadOrders();
         document.querySelector('.profile-tab-btn[data-tab="orders"]').click();
@@ -223,15 +355,13 @@
     // ========== ЗАКАЗЫ ==========
     function loadOrders() {
         const orders = JSON.parse(localStorage.getItem('orders')) || [];
+        const userOrders = orders.filter(o => o.userId === currentUser.id);
         const container = document.getElementById('orders-list');
         
-        if (orders.length === 0) {
-            container.innerHTML = '<p>У вас пока нет заказов</p>';
+        if (userOrders.length === 0) {
+            container.innerHTML = '<p style="text-align:center; padding:40px;">📭 У вас пока нет заказов</p>';
             return;
         }
-        
-        // Сортируем от новых к старым
-        orders.reverse();
         
         const statusMap = {
             'pending': '⏳ Обрабатывается',
@@ -240,20 +370,23 @@
             'cancelled': '❌ Отменен'
         };
         
-        container.innerHTML = orders.map(order => `
+        container.innerHTML = userOrders.slice().reverse().map(order => `
             <div class="order-item">
                 <div class="order-header">
-                    <span class="order-id">Заказ №${order.id}</span>
-                    <span class="order-date">${new Date(order.date).toLocaleDateString()}</span>
+                    <span class="order-id">📄 Заказ №${order.id}</span>
+                    <span class="order-date">📅 ${new Date(order.date).toLocaleDateString()}</span>
                     <span class="order-status">${statusMap[order.status] || '⏳ Обрабатывается'}</span>
                 </div>
-                <div class="order-items">
+                <div class="order-items" style="margin:10px 0; padding:10px; background:#f5f5f5; border-radius:8px;">
                     ${order.items.map(item => `
-                        <div class="order-item-detail">${escapeHtml(item.title)} x ${item.quantity} = ${item.price * item.quantity} руб.</div>
+                        <div style="display:flex; justify-content:space-between; padding:5px 0;">
+                            <span>${escapeHtml(item.title)} x ${item.quantity}</span>
+                            <span>${item.price * item.quantity} ₽</span>
+                        </div>
                     `).join('')}
                 </div>
-                ${order.address ? `<div class="address"><strong>📍 Адрес:</strong> ${escapeHtml(order.address)}</div>` : ''}
-                <div class="order-total">Итого: ${order.total} рублей</div>
+                ${order.address ? `<div style="margin:10px 0;">📍 Адрес доставки: ${escapeHtml(order.address)}</div>` : ''}
+                <div class="order-total">💰 Итого: ${order.total} рублей</div>
             </div>
         `).join('');
     }
@@ -264,17 +397,24 @@
         const container = document.getElementById('favorites-list');
         
         if (favorites.length === 0) {
-            container.innerHTML = '<p>У вас пока нет избранных товаров</p>';
+            container.innerHTML = '<p style="text-align:center; padding:40px;">⭐ У вас пока нет избранных товаров</p>';
             return;
         }
         
         container.innerHTML = favorites.map((item, index) => `
             <div class="favorite-item">
-                <h4>${escapeHtml(item.title)}</h4>
-                <p>${escapeHtml(item.description)}</p>
-                <div class="favorite-price">${item.price} рублей</div>
-                <button class="add-to-cart-small" onclick="addFavoriteToCart(${index})">В корзину</button>
-                <button class="remove-btn" onclick="removeFavorite(${index})" style="margin-top: 10px;">Удалить из избранного</button>
+                <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                    <div style="width:80px; height:80px; background-image:url('${item.imageUrl || 'img/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:10px;"></div>
+                    <div style="flex:1;">
+                        <h4>${escapeHtml(item.title)}</h4>
+                        <p>${escapeHtml(item.description || '')}</p>
+                        <div class="favorite-price">${item.price} рублей</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button class="add-to-cart-small" onclick="addFavoriteToCart(${index})">🛒 В корзину</button>
+                    <button class="remove-btn" onclick="removeFavorite(${index})" style="background:#dc3545; color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">🗑️ Удалить</button>
+                </div>
             </div>
         `).join('');
     }
@@ -297,7 +437,7 @@
         }
         
         localStorage.setItem('cart', JSON.stringify(cart));
-        alert('Товар добавлен в корзину!');
+        alert('✅ Товар добавлен в корзину!');
     }
 
     function removeFavorite(index) {
@@ -310,7 +450,7 @@
     function logout() {
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('currentUser');
-        alert('Вы вышли из системы');
+        alert('👋 Вы вышли из системы');
         window.location.href = 'index.html';
     }
 
@@ -324,27 +464,6 @@
         });
     }
 </script>
-
-<style>
-    .order-item-detail {
-        padding: 5px 0;
-        border-bottom: 1px solid #eee;
-    }
-    .address {
-        background: #f5f5f5;
-        padding: 10px;
-        border-radius: 8px;
-        margin: 10px 0;
-    }
-    .add-to-cart-small {
-        background: #800000;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 20px;
-        cursor: pointer;
-    }
-</style>
 
 </body>
 </html>
