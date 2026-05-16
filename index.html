@@ -9,10 +9,29 @@
         .product-card {
             cursor: pointer;
             transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         .product-card:hover {
             transform: scale(1.05);
         }
+        .buy-label {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(128,0,0,0.8);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .loading, .error {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+        }
+        .error { color: red; }
     </style>
 </head>
 <body>
@@ -96,99 +115,88 @@
     </div>
 </footer>
 
-<script type="module" src="firebase-api.js"></script>
-<script>
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyC92UNkrbU2KHUZzTtLQggOa1qpa2hvFbs",
+        authDomain: "magic-shop-285c1.firebaseapp.com",
+        projectId: "magic-shop-285c1",
+        storageBucket: "magic-shop-285c1.firebasestorage.app",
+        messagingSenderId: "189566179161",
+        appId: "1:189566179161:web:10b28c648af33cfd459e48"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
     let currentProduct = null;
-
-    document.addEventListener('DOMContentLoaded', async function() {
-        checkAuthStatus();
-        await loadProducts();
-        setupSearch();
-        setupModal();
-    });
-
+    
+    // Проверка авторизации для навигации
+    function checkAuthStatus() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const authLink = document.getElementById('auth-link');
+        const profileLink = document.getElementById('profile-link');
+        if (isLoggedIn === 'true') {
+            if (authLink) authLink.style.display = 'none';
+            if (profileLink) profileLink.style.display = 'inline';
+        } else {
+            if (authLink) authLink.style.display = 'inline';
+            if (profileLink) profileLink.style.display = 'none';
+        }
+    }
+    
+    // Загрузка товаров
     async function loadProducts() {
         try {
-            const products = await getProducts();
+            const querySnapshot = await getDocs(collection(db, 'products'));
+            const products = [];
+            querySnapshot.forEach((doc) => {
+                products.push({ id: doc.id, ...doc.data() });
+            });
+            
             const container = document.getElementById('products-list');
+            if (products.length === 0) {
+                container.innerHTML = '<div class="loading">Нет товаров. Загрузите их через upload-products.html</div>';
+                return;
+            }
             
             container.innerHTML = products.slice(0, 8).map(product => `
-                <div class="product-card" style="background-image: url('${product.image}');" 
-                     onclick="showProductModal(${product.id})">
+                <div class="product-card" style="background-image: url('${product.image}'); cursor:pointer;" 
+                     onclick='showProductModal(${JSON.stringify(product)})'>
                     <div class="buy-label">Купить</div>
                 </div>
             `).join('');
         } catch (error) {
-            console.error('Error loading products:', error);
-            document.getElementById('products-list').innerHTML = '<div class="error">Ошибка загрузки товаров</div>';
+            console.error('Error:', error);
+            document.getElementById('products-list').innerHTML = '<div class="error">Ошибка загрузки товаров: ' + error.message + '</div>';
         }
     }
-
-    function setupSearch() {
-        const searchBtn = document.getElementById('search-btn');
-        const searchInput = document.getElementById('search-input');
-        
-        searchBtn.addEventListener('click', () => {
-            const query = searchInput.value.trim();
-            if (query) {
-                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
-            }
-        });
-        
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchInput.value.trim();
-                if (query) {
-                    window.location.href = `products.html?search=${encodeURIComponent(query)}`;
-                }
-            }
-        });
+    
+    // Показать модальное окно
+    window.showProductModal = function(product) {
+        currentProduct = product;
+        document.getElementById('modal-title').textContent = product.name;
+        document.getElementById('modal-description').textContent = product.description;
+        document.getElementById('modal-price').textContent = `Цена: ${product.price} рублей`;
+        document.getElementById('quantity').value = 1;
+        document.getElementById('modal-image').style.backgroundImage = `url('${product.image}')`;
+        document.getElementById('productModal').style.display = 'block';
     }
-
-    async function showProductModal(productId) {
-        try {
-            const products = await getProducts();
-            const product = products.find(p => p.id == productId);
-            if (!product) return;
-            
-            currentProduct = product;
-            document.getElementById('modal-title').textContent = product.name;
-            document.getElementById('modal-description').textContent = product.description;
-            document.getElementById('modal-price').textContent = `Цена: ${product.price} рублей`;
-            document.getElementById('quantity').value = 1;
-            document.getElementById('modal-image').style.backgroundImage = `url('${product.image}')`;
-            document.getElementById('productModal').style.display = 'block';
-        } catch (error) {
-            alert('Ошибка загрузки товара');
-        }
-    }
-
-    function setupModal() {
-        const modal = document.getElementById('productModal');
-        const closeBtn = document.querySelector('.close');
-        
-        closeBtn.onclick = function() {
-            modal.style.display = 'none';
-        }
-        
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
-    }
-
-    async function addToCart() {
+    
+    // Добавить в корзину
+    window.addToCart = function() {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         if (isLoggedIn !== 'true') {
             alert('Пожалуйста, войдите в систему');
             location.href = 'auth.html';
             return;
         }
-
+        
         const quantity = parseInt(document.getElementById('quantity').value);
         const product = currentProduct;
-
+        
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const existingItem = cart.find(item => item.title === product.name);
         
@@ -209,6 +217,36 @@
         alert('✅ Товар добавлен в корзину!');
         document.getElementById('productModal').style.display = 'none';
     }
+    
+    // Поиск
+    function setupSearch() {
+        const searchBtn = document.getElementById('search-btn');
+        const searchInput = document.getElementById('search-input');
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (query) window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+        });
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query) window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+            }
+        });
+    }
+    
+    // Модальное окно
+    function setupModal() {
+        const modal = document.getElementById('productModal');
+        const closeBtn = document.querySelector('.close');
+        closeBtn.onclick = () => modal.style.display = 'none';
+        window.onclick = (event) => { if (event.target === modal) modal.style.display = 'none'; }
+    }
+    
+    // Запуск
+    checkAuthStatus();
+    loadProducts();
+    setupSearch();
+    setupModal();
 </script>
 </body>
 </html>
