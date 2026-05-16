@@ -81,14 +81,12 @@
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         const authLink = document.getElementById('auth-link');
         const profileLink = document.getElementById('profile-link');
-        
         if (isLoggedIn === 'true') {
             authLink.style.display = 'none';
             profileLink.style.display = 'inline';
         }
     });
 </script>
-<script type="module" src="firebase-api.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         checkAuthStatus();
