@@ -1216,3 +1216,8 @@ body {
     background: rgba(255, 255, 255, 0.15);
     pointer-events: none;
 }
+/* Белый фон для всех карточек товаров */
+.product-card {
+    background-color: #ffffff !important;
+    background-blend-mode: normal !important;
+}
