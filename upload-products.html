@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузка товаров</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .status { margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px; max-height: 400px; overflow-y: auto; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Загрузка товаров в базу данных</h1>
+        <button id="uploadBtn">📦 Загрузить товары</button>
+        <div id="status" class="status">Готово к загрузке...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC92UNkrbU2KHUZzTtLQggOa1qpa2hvFbs",
+            authDomain: "magic-shop-285c1.firebaseapp.com",
+            projectId: "magic-shop-285c1",
+            storageBucket: "magic-shop-285c1.firebasestorage.app",
+            messagingSenderId: "189566179161",
+            appId: "1:189566179161:web:10b28c648af33cfd459e48",
+            measurementId: "G-HWVDNYGS88"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        const products = [
+            { name: "Волшебная палочка из виноградной лозы", description: "Идеальная для заклинаний защиты", price: 1500, category: "wands", image: "img/wand-vine.jpg" },
+            { name: "Палочка из перья феникса", description: "Редкая и мощная палочка", price: 3000, category: "wands", image: "img/wand-phoenix.jpg" },
+            { name: "Палочка из сердца дракона", description: "Для сложных заклинаний", price: 2500, category: "wands", image: "img/wand-dragon.jpg" },
+            { name: "Палочка из единорожьего волоса", description: "Нежная но мощная палочка", price: 2200, category: "wands", image: "img/wand-unicorn.jpg" },
+            { name: "Мантия Гриффиндора", description: "Традиционная мантия с гербом Гриффиндора", price: 2000, category: "robes", image: "img/robe-gryffindor.jpg" },
+            { name: "Мантия Слизерина", description: "Элегантная зеленая мантия с гербом Слизерина", price: 1800, category: "robes", image: "img/robe-slytherin.jpg" },
+            { name: "Мантия Когтеврана", description: "Синяя мантия с орлом Когтеврана", price: 1900, category: "robes", image: "img/robe-ravenclaw.jpg" },
+            { name: "Мантия Пуффендуя", description: "Желтая уютная мантия с гербом Пуффендуя", price: 1700, category: "robes", image: "img/robe-hufflepuff.jpg" },
+            { name: "Метла Нимбус 2000", description: "Самая быстрая метла сезона", price: 5000, category: "brooms", image: "img/broom-nimbus.jpg" },
+            { name: "Метла Огненная молния", description: "Профессиональная гоночная метла", price: 8000, category: "brooms", image: "img/broom-firebolt.jpg" },
+            { name: "Метла Чистомет", description: "Надежная и простая в управлении метла", price: 3500, category: "brooms", image: "img/broom-cleansweep.jpg" },
+            { name: "Учебник зелий", description: "Полное руководство по зельеварению от профессора Снейпа", price: 1200, category: "books", image: "img/book-potions.jpg" },
+            { name: "Книга заклинаний", description: "500 основных заклинаний для начинающих волшебников", price: 1500, category: "books", image: "img/book-spells.jpg" },
+            { name: "Уход за магическими существами", description: "Энциклопедия магических существ", price: 1800, category: "books", image: "img/book-creatures.jpg" }
+        ];
+        
+        document.getElementById('uploadBtn').onclick = async () => {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '🔄 Загрузка началась...<br>';
+            
+            const existingProducts = await getDocs(collection(db, 'products'));
+            if (!existingProducts.empty) {
+                statusDiv.innerHTML += '⚠️ Товары уже есть в базе! Очистите коллекцию перед загрузкой.<br>';
+                return;
+            }
+            
+            for (const product of products) {
+                try {
+                    await addDoc(collection(db, 'products'), product);
+                    statusDiv.innerHTML += `<span class="success">✅ Загружен: ${product.name}</span><br>`;
+                } catch (error) {
+                    statusDiv.innerHTML += `<span class="error">❌ Ошибка: ${product.name}</span><br>`;
+                }
+            }
+            statusDiv.innerHTML += '<br>🎉 Загрузка завершена!';
+        };
+    </script>
+</body>
+</html>
