@@ -72,6 +72,13 @@
             text-align: center;
             padding: 50px;
         }
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            background: #D9D9D9;
+            border-radius: 15px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -98,7 +105,7 @@
         <section class="products-section">
             <h1 id="category-title">Все товары</h1>
             <div class="category-filter">
-                <button class="filter-btn active" data-category="all">Все</button>
+                <button class="filter-btn" data-category="all">Все</button>
                 <button class="filter-btn" data-category="wands">Палочки</button>
                 <button class="filter-btn" data-category="robes">Мантии</button>
                 <button class="filter-btn" data-category="brooms">Метлы</button>
@@ -124,7 +131,7 @@
                     <label>Количество:</label>
                     <input type="number" id="quantity" value="1" min="1" max="10">
                 </div>
-                <button class="add-to-cart-btn" onclick="addToCart()">Добавить в корзину</button>
+                <button class="add-to-cart-btn" id="addToCartBtn">Добавить в корзину</button>
             </div>
         </div>
     </div>
@@ -158,12 +165,10 @@
     let allProducts = [];
     let currentProduct = null;
     
-    // Функция проверки авторизации (ОБЯЗАТЕЛЬНО)
     function checkAuthStatus() {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         const authLink = document.getElementById('auth-link');
         const profileLink = document.getElementById('profile-link');
-        
         if (isLoggedIn === 'true') {
             if (authLink) authLink.style.display = 'none';
             if (profileLink) profileLink.style.display = 'inline';
@@ -179,17 +184,21 @@
             const category = urlParams.get('category');
             const searchQuery = urlParams.get('search');
             
-            let q = collection(db, 'products');
-            if (category && category !== 'all') {
-                q = query(collection(db, 'products'), where('category', '==', category));
-            }
-            
-            const querySnapshot = await getDocs(q);
             let products = [];
+            const querySnapshot = await getDocs(collection(db, 'products'));
             querySnapshot.forEach((doc) => {
                 products.push({ id: doc.id, ...doc.data() });
             });
             allProducts = products;
+            
+            if (category && category !== 'all') {
+                products = products.filter(p => p.category === category);
+                document.getElementById('category-title').textContent = getCategoryName(category);
+                highlightActiveFilter(category);
+            } else {
+                document.getElementById('category-title').textContent = 'Все товары';
+                highlightActiveFilter('all');
+            }
             
             if (searchQuery) {
                 products = products.filter(p => 
@@ -197,10 +206,6 @@
                     p.description.toLowerCase().includes(searchQuery.toLowerCase())
                 );
                 document.getElementById('category-title').textContent = `Результаты поиска: "${searchQuery}"`;
-            } else if (category && category !== 'all') {
-                document.getElementById('category-title').textContent = getCategoryName(category);
-            } else {
-                document.getElementById('category-title').textContent = 'Все товары';
             }
             
             const grid = document.getElementById('products-grid');
@@ -210,23 +215,61 @@
             }
             
             grid.innerHTML = products.map(product => `
-                <div class="product-item" onclick="showProductModal(${product.id})">
+                <div class="product-item" data-product-id="${product.id}">
                     <div class="product-item-image" style="background-image: url('${product.image}')"></div>
                     <div class="product-item-info">
                         <h3>${escapeHtml(product.name)}</h3>
                         <p>${escapeHtml(product.description)}</p>
                         <div class="product-item-price">${product.price} рублей</div>
-                        <button class="buy-btn" onclick="event.stopPropagation(); addToCartDirect(${product.id})">В корзину</button>
+                        <button class="buy-btn" data-product-id="${product.id}">В корзину</button>
                     </div>
                 </div>
             `).join('');
+            
+            // Добавляем обработчики событий
+            document.querySelectorAll('.product-item').forEach(item => {
+                const productId = item.dataset.productId;
+                item.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('buy-btn')) {
+                        showProductModal(productId);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.buy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const productId = btn.dataset.productId;
+                    addToCartDirect(productId);
+                });
+            });
+            
         } catch (error) {
             console.error('Error:', error);
-            document.getElementById('products-grid').innerHTML = '<div class="error">Ошибка загрузки</div>';
+            document.getElementById('products-grid').innerHTML = '<div class="no-results">❌ Ошибка загрузки товаров</div>';
         }
     }
     
-    window.showProductModal = function(productId) {
+    function highlightActiveFilter(category) {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.category === category) {
+                btn.classList.add('active');
+            }
+        });
+    }
+    
+    function getCategoryName(category) {
+        const names = {
+            'wands': 'Волшебные палочки',
+            'robes': 'Мантии',
+            'brooms': 'Метлы',
+            'books': 'Книги'
+        };
+        return names[category] || 'Все товары';
+    }
+    
+    function showProductModal(productId) {
         const product = allProducts.find(p => p.id == productId);
         if (!product) return;
         currentProduct = product;
@@ -238,10 +281,11 @@
         document.getElementById('modal-image').style.backgroundSize = 'cover';
         document.getElementById('modal-image').style.backgroundPosition = 'center';
         document.getElementById('productModal').style.display = 'block';
-    };
+    }
     
-    window.addToCartDirect = function(productId) {
-        if (localStorage.getItem('isLoggedIn') !== 'true') {
+    function addToCartDirect(productId) {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        if (isLoggedIn !== 'true') {
             alert('Пожалуйста, войдите в систему');
             location.href = 'auth.html';
             return;
@@ -251,41 +295,61 @@
         
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const existing = cart.find(i => i.title === product.name);
-        if (existing) existing.quantity += 1;
-        else cart.push({ title: product.name, description: product.description, price: product.price, category: product.category, imageUrl: product.image, quantity: 1 });
-        
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            cart.push({
+                title: product.name,
+                description: product.description,
+                price: product.price,
+                category: product.category,
+                imageUrl: product.image,
+                quantity: 1
+            });
+        }
         localStorage.setItem('cart', JSON.stringify(cart));
         alert('✅ Товар добавлен в корзину!');
-    };
+    }
     
-    window.addToCart = function() {
-        if (localStorage.getItem('isLoggedIn') !== 'true') {
-            alert('Войдите в систему');
+    function addToCart() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        if (isLoggedIn !== 'true') {
+            alert('Пожалуйста, войдите в систему');
             location.href = 'auth.html';
             return;
         }
         const quantity = parseInt(document.getElementById('quantity').value);
         const product = currentProduct;
+        if (!product) return;
+        
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const existing = cart.find(i => i.title === product.name);
-        if (existing) existing.quantity += quantity;
-        else cart.push({ ...product, title: product.name, quantity: quantity });
-        
+        if (existing) {
+            existing.quantity += quantity;
+        } else {
+            cart.push({
+                title: product.name,
+                description: product.description,
+                price: product.price,
+                category: product.category,
+                imageUrl: product.image,
+                quantity: quantity
+            });
+        }
         localStorage.setItem('cart', JSON.stringify(cart));
-        alert('✅ Добавлено!');
+        alert('✅ Товар добавлен в корзину!');
         document.getElementById('productModal').style.display = 'none';
-    };
-    
-    function getCategoryName(category) {
-        const names = { 'wands': 'Палочки', 'robes': 'Мантии', 'brooms': 'Метлы', 'books': 'Книги' };
-        return names[category] || 'Все товары';
     }
     
     function setupFilters() {
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const category = btn.dataset.category;
-                window.location.href = category === 'all' ? 'products.html' : `products.html?category=${category}`;
+                if (category === 'all') {
+                    window.location.href = 'products.html';
+                } else {
+                    window.location.href = `products.html?category=${category}`;
+                }
             });
         });
     }
@@ -299,12 +363,20 @@
         
         searchBtn.addEventListener('click', () => {
             const query = searchInput.value.trim();
-            window.location.href = query ? `products.html?search=${encodeURIComponent(query)}` : 'products.html';
+            if (query) {
+                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+            } else {
+                window.location.href = 'products.html';
+            }
         });
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const query = searchInput.value.trim();
-                window.location.href = query ? `products.html?search=${encodeURIComponent(query)}` : 'products.html';
+                if (query) {
+                    window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+                } else {
+                    window.location.href = 'products.html';
+                }
             }
         });
     }
@@ -314,6 +386,7 @@
         const closeBtn = document.querySelector('.close');
         closeBtn.onclick = () => modal.style.display = 'none';
         window.onclick = (event) => { if (event.target === modal) modal.style.display = 'none'; };
+        document.getElementById('addToCartBtn').onclick = addToCart;
     }
     
     function escapeHtml(str) {
@@ -321,7 +394,6 @@
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
-    // Запуск
     checkAuthStatus();
     loadProducts();
     setupFilters();
