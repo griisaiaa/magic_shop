@@ -73,10 +73,9 @@
 </footer>
 
 <script type="module">
-    import { getFirestore, doc, setDoc, getDocs, collection, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-    import { getFirestore, doc, setDoc, getDocs, collection } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+    import { getFirestore, doc, setDoc, getDocs, collection, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
     
     const firebaseConfig = {
         apiKey: "AIzaSyC92UNkrbU2KHUZzTtLQggOa1qpa2hvFbs",
@@ -134,12 +133,13 @@
         }
         
         try {
+            const usersSnapshot = await getDocs(collection(db, 'users'));
+            const isFirstUser = usersSnapshot.empty;
+            
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
-            // Проверяем, первый ли пользователь
-            const usersSnapshot = await getDocs(collection(db, 'users'));
-            const role = usersSnapshot.empty ? 'admin' : 'user';
+            const role = isFirstUser ? 'admin' : 'user';
             
             await setDoc(doc(db, 'users', user.uid), {
                 name: name,
@@ -148,7 +148,11 @@
                 registrationDate: new Date().toISOString()
             });
             
-            showSuccess(role === 'admin' ? '🎉 Вы первый пользователь! Вы стали АДМИНИСТРАТОРОМ!' : '✅ Регистрация успешна! Теперь войдите.');
+            if (role === 'admin') {
+                showSuccess('🎉 Вы первый пользователь! Вы стали АДМИНИСТРАТОРОМ!');
+            } else {
+                showSuccess('✅ Регистрация успешна! Теперь войдите.');
+            }
             
             document.getElementById('login-email').value = email;
             document.getElementById('login-password').value = '';
@@ -177,14 +181,27 @@
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
-            // Сохраняем в localStorage
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('currentUser', JSON.stringify({
-                id: user.uid,
-                email: user.email
-            }));
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const userData = userDoc.data();
             
-            showSuccess('Вход выполнен! Перенаправление...');
+            if (!userData) {
+                showError('Данные пользователя не найдены');
+                return;
+            }
+            
+            const currentUser = {
+                id: user.uid,
+                name: userData.name,
+                email: user.email,
+                role: userData.role,
+                registrationDate: userData.registrationDate
+            };
+            
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            showSuccess(`Добро пожаловать, ${userData.name}!`);
+            
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 1000);
