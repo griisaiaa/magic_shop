@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Fix Admin</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        button { background: #4CAF50; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 5px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Исправление прав администратора</h1>
+        <button id="fixBtn">Сделать меня админом</button>
+        <button id="checkBtn">Проверить статус</button>
+        <div id="result"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+        import { getFirestore, doc, updateDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC92UNkrbU2KHUZzTtLQggOa1qpa2hvFbs",
+            authDomain: "magic-shop-285c1.firebaseapp.com",
+            projectId: "magic-shop-285c1",
+            storageBucket: "magic-shop-285c1.firebasestorage.app",
+            messagingSenderId: "189566179161",
+            appId: "1:189566179161:web:10b28c648af33cfd459e48"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const resultDiv = document.getElementById('result');
+        
+        document.getElementById('checkBtn').onclick = async () => {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                resultDiv.innerHTML = '<p class="error">❌ Вы не авторизованы. Сначала войдите на сайт.</p>';
+                return;
+            }
+            
+            const userDoc = await getDoc(doc(db, 'users', currentUser.id));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                resultDiv.innerHTML = `
+                    <p>📧 Email: ${data.email}</p>
+                    <p>📛 Имя: ${data.name}</p>
+                    <p>👑 Роль в Firebase: <strong>${data.role}</strong></p>
+                    <p>💾 Роль в localStorage: <strong>${currentUser.role}</strong></p>
+                    ${data.role === 'admin' ? '<p class="success">✅ Вы администратор! Обновите страницу.</p>' : '<p class="error">⚠️ Вы не администратор</p>'}
+                `;
+            }
+        };
+        
+        document.getElementById('fixBtn').onclick = async () => {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                resultDiv.innerHTML = '<p class="error">❌ Вы не авторизованы. Сначала войдите на сайт.</p>';
+                return;
+            }
+            
+            await updateDoc(doc(db, 'users', currentUser.id), { role: 'admin' });
+            
+            // Обновляем localStorage
+            currentUser.role = 'admin';
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            resultDiv.innerHTML = '<p class="success">✅ Вы стали администратором! Теперь зайдите в админ-панель.</p>';
+        };
+    </script>
+</body>
+</html>
