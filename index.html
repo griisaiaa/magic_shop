@@ -147,32 +147,31 @@
         }
     }
     
-    // Загрузка товаров
     async function loadProducts() {
-        try {
-            const querySnapshot = await getDocs(collection(db, 'products'));
-            const products = [];
-            querySnapshot.forEach((doc) => {
-                products.push({ id: doc.id, ...doc.data() });
-            });
-            
-            const container = document.getElementById('products-list');
-            if (products.length === 0) {
-                container.innerHTML = '<div class="loading">Нет товаров. Загрузите их через upload-products.html</div>';
-                return;
-            }
-            
-            container.innerHTML = products.slice(0, 8).map(product => `
-                <div class="product-card" style="background-image: url('${product.image}'); cursor:pointer;" 
-                     onclick='showProductModal(${JSON.stringify(product)})'>
-                    <div class="buy-label">Купить</div>
-                </div>
-            `).join('');
-        } catch (error) {
-            console.error('Error:', error);
-            document.getElementById('products-list').innerHTML = '<div class="error">Ошибка загрузки товаров: ' + error.message + '</div>';
+    try {
+        const querySnapshot = await getDocs(collection(db, 'products'));
+        const products = [];
+        querySnapshot.forEach((doc) => {
+            products.push({ id: doc.id, ...doc.data() });
+        });
+        
+        const container = document.getElementById('products-list');
+        if (products.length === 0) {
+            container.innerHTML = '<div class="loading">Нет товаров. Загрузите их через upload-products.html</div>';
+            return;
         }
+        
+        container.innerHTML = products.slice(0, 8).map(product => `
+            <div class="product-card" style="background-image: url('${product.image}');" 
+                 onclick='showProductModal(${JSON.stringify(product)})'>
+                <div class="buy-label">Купить</div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('products-list').innerHTML = '<div class="error">Ошибка загрузки товаров: ' + error.message + '</div>';
     }
+}
     
     // Показать модальное окно
     window.showProductModal = function(product) {
