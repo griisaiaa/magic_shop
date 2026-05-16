@@ -6,32 +6,12 @@
     <title>Magic Shop - Главная</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .product-card {
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .product-card:hover {
-            transform: scale(1.05);
-        }
-        .buy-label {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(128,0,0,0.8);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-        }
-        .loading, .error {
-            text-align: center;
-            padding: 50px;
-            font-size: 18px;
-        }
+        .product-card { cursor: pointer; transition: transform 0.3s ease; position: relative; overflow: hidden; height: 200px; background-size: cover !important; background-position: center !important; border-radius: 10px; }
+        .product-card:hover { transform: scale(1.05); }
+        .buy-label { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(128,0,0,0.8); color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; }
+        .loading, .error { text-align: center; padding: 50px; font-size: 18px; }
         .error { color: red; }
+        .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
     </style>
 </head>
 <body>
@@ -40,7 +20,6 @@
     <a href="index.html" class="logo-link">
         <div class="logo" style="background-image: url('img/logo.png');"></div>
     </a>
-
     <nav class="nav">
         <a href="auth.html" id="auth-link">Вход/регистрация</a>
         <a href="promotions.html">Акции</a>
@@ -48,7 +27,6 @@
         <a href="admin.html">Админ панель</a>
         <a href="profile.html" id="profile-link" style="display: none;">Личный кабинет</a>
     </nav>
-
     <div class="search">
         <input type="text" id="search-input" placeholder="Найти...">
         <button id="search-btn">ОК</button>
@@ -57,63 +35,33 @@
 
 <div class="wrapper">
     <main class="content">
-        <section class="welcome">
-            <p>Добро пожаловать в наш волшебный магазин по вселенной Гарри Поттера!</p>
-        </section>
-
-        <section class="details-cards">
-            <div class="detail-card gryffindor" style="background-image: url('img/wands-category.jpg');">
-                <button class="detail-btn gryffindor-btn" onclick="location.href='products.html?category=wands'">Палочки</button>
-            </div>
-            <div class="detail-card slytherin" style="background-image: url('img/robes-category.avif');">
-                <button class="detail-btn slytherin-btn" onclick="location.href='products.html?category=robes'">Мантии</button>
-            </div>
-            <div class="detail-card hufflepuff" style="background-image: url('img/brooms-category.jpg');">
-                <button class="detail-btn hufflepuff-btn" onclick="location.href='products.html?category=brooms'">Метлы</button>
-            </div>
-        </section>
-
-        <section class="products" id="products-list">
-            <div class="loading">Загрузка товаров...</div>
-        </section>
+        <section class="welcome"><p>Добро пожаловать в наш волшебный магазин!</p></section>
+        <section class="products" id="products-list"><div class="loading">Загрузка...</div></section>
     </main>
-
     <aside class="scroll-gallery">
         <div class="photo" style="background-image: url('img/gallery1.jpg');"></div>
         <div class="photo" style="background-image: url('img/gallery2.jpg');"></div>
         <div class="photo" style="background-image: url('img/gallery3.jpg');"></div>
-        <div class="photo" style="background-image: url('img/gallery4.jpg');"></div>
-        <div class="photo" style="background-image: url('img/gallery5.jpg');"></div>
     </aside>
 </div>
 
 <div id="productModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2 id="modal-title">Название товара</h2>
+        <h2 id="modal-title"></h2>
         <div class="product-modal-body">
             <div class="product-image" id="modal-image"></div>
             <div class="product-info">
-                <p id="modal-description">Описание товара</p>
-                <p class="product-price" id="modal-price">Цена: 0 рублей</p>
-                <div class="quantity-selector">
-                    <label>Количество:</label>
-                    <input type="number" id="quantity" value="1" min="1" max="10">
-                </div>
-                <button class="add-to-cart-btn" onclick="addToCart()">Добавить в корзину</button>
+                <p id="modal-description"></p>
+                <p class="product-price" id="modal-price"></p>
+                <input type="number" id="quantity" value="1" min="1" max="10">
+                <button class="add-to-cart-btn" onclick="addToCart()">В корзину</button>
             </div>
         </div>
     </div>
 </div>
 
-<footer class="footer">
-    <div class="footer-content">
-        Адрес: Улица Привет Драйв, дом 7, Лондон<br>
-        Телефон: +7 (900) 123-45-67<br>
-        Email: magicshop@hogwarts.mail<br>
-        © 2026 Магазин волшебства. Все права защищены.
-    </div>
-</footer>
+<footer class="footer"><div class="footer-content">© 2026 Магазин волшебства</div></footer>
 
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
@@ -130,10 +78,8 @@
     
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    
     let currentProduct = null;
     
-    // Проверка авторизации для навигации
     function checkAuthStatus() {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         const authLink = document.getElementById('auth-link');
@@ -148,104 +94,54 @@
     }
     
     async function loadProducts() {
-    try {
-        const querySnapshot = await getDocs(collection(db, 'products'));
-        const products = [];
-        querySnapshot.forEach((doc) => {
-            products.push({ id: doc.id, ...doc.data() });
-        });
-        
-        const container = document.getElementById('products-list');
-        if (products.length === 0) {
-            container.innerHTML = '<div class="loading">Нет товаров. Загрузите их через upload-products.html</div>';
-            return;
+        try {
+            const querySnapshot = await getDocs(collection(db, 'products'));
+            const products = [];
+            querySnapshot.forEach((doc) => products.push({ id: doc.id, ...doc.data() }));
+            const container = document.getElementById('products-list');
+            if (products.length === 0) { container.innerHTML = '<div class="loading">Нет товаров</div>'; return; }
+            container.innerHTML = products.slice(0, 8).map(p => `
+                <div class="product-card" style="background-image: url('${p.image}');" onclick='window.showProductModal(${JSON.stringify(p)})'>
+                    <div class="buy-label">Купить</div>
+                </div>
+            `).join('');
+        } catch (error) {
+            document.getElementById('products-list').innerHTML = '<div class="error">Ошибка: ' + error.message + '</div>';
         }
-        
-        container.innerHTML = products.slice(0, 8).map(product => `
-            <div class="product-card" style="background-image: url('${product.image}');" 
-                 onclick='showProductModal(${JSON.stringify(product)})'>
-                <div class="buy-label">Купить</div>
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('products-list').innerHTML = '<div class="error">Ошибка загрузки товаров: ' + error.message + '</div>';
     }
-}
     
-    // Показать модальное окно
     window.showProductModal = function(product) {
         currentProduct = product;
         document.getElementById('modal-title').textContent = product.name;
         document.getElementById('modal-description').textContent = product.description;
-        document.getElementById('modal-price').textContent = `Цена: ${product.price} рублей`;
-        document.getElementById('quantity').value = 1;
+        document.getElementById('modal-price').textContent = `Цена: ${product.price} руб.`;
         document.getElementById('modal-image').style.backgroundImage = `url('${product.image}')`;
         document.getElementById('productModal').style.display = 'block';
-    }
+    };
     
-    // Добавить в корзину
     window.addToCart = function() {
-        const isLoggedIn = localStorage.getItem('isLoggedIn');
-        if (isLoggedIn !== 'true') {
-            alert('Пожалуйста, войдите в систему');
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            alert('Войдите в систему');
             location.href = 'auth.html';
             return;
         }
-        
-        const quantity = parseInt(document.getElementById('quantity').value);
-        const product = currentProduct;
-        
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const existingItem = cart.find(item => item.title === product.name);
-        
-        if (existingItem) {
-            existingItem.quantity += quantity;
-        } else {
-            cart.push({
-                title: product.name,
-                description: product.description,
-                price: product.price,
-                category: product.category,
-                imageUrl: product.image,
-                quantity: quantity
-            });
-        }
-        
+        const existing = cart.find(i => i.title === currentProduct.name);
+        if (existing) existing.quantity += parseInt(document.getElementById('quantity').value);
+        else cart.push({ ...currentProduct, title: currentProduct.name, quantity: parseInt(document.getElementById('quantity').value) });
         localStorage.setItem('cart', JSON.stringify(cart));
-        alert('✅ Товар добавлен в корзину!');
+        alert('✅ Добавлено!');
         document.getElementById('productModal').style.display = 'none';
-    }
+    };
     
-    // Поиск
-    function setupSearch() {
-        const searchBtn = document.getElementById('search-btn');
-        const searchInput = document.getElementById('search-input');
-        searchBtn.addEventListener('click', () => {
-            const query = searchInput.value.trim();
-            if (query) window.location.href = `products.html?search=${encodeURIComponent(query)}`;
-        });
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const query = searchInput.value.trim();
-                if (query) window.location.href = `products.html?search=${encodeURIComponent(query)}`;
-            }
-        });
-    }
+    document.querySelector('.close')?.addEventListener('click', () => document.getElementById('productModal').style.display = 'none');
+    document.getElementById('search-btn')?.addEventListener('click', () => {
+        const q = document.getElementById('search-input').value.trim();
+        if (q) location.href = `products.html?search=${encodeURIComponent(q)}`;
+    });
     
-    // Модальное окно
-    function setupModal() {
-        const modal = document.getElementById('productModal');
-        const closeBtn = document.querySelector('.close');
-        closeBtn.onclick = () => modal.style.display = 'none';
-        window.onclick = (event) => { if (event.target === modal) modal.style.display = 'none'; }
-    }
-    
-    // Запуск
     checkAuthStatus();
     loadProducts();
-    setupSearch();
-    setupModal();
 </script>
 </body>
 </html>
