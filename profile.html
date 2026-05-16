@@ -34,11 +34,6 @@
             margin-bottom: 8px;
             font-size: 1.1em;
         }
-        .cart-item-info p {
-            color: #666;
-            font-size: 0.85em;
-            margin-bottom: 5px;
-        }
         .cart-item-price {
             color: #800000;
             font-weight: bold;
@@ -59,17 +54,6 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 18px;
-            font-weight: bold;
-            transition: background 0.3s ease;
-        }
-        .cart-item-actions button:hover {
-            background: #5a0000;
-        }
-        .cart-item-actions span {
-            font-weight: bold;
-            min-width: 30px;
-            text-align: center;
-            font-size: 1.1em;
         }
         .remove-btn {
             background: #dc3545 !important;
@@ -78,23 +62,13 @@
             padding: 8px 15px !important;
             font-size: 14px !important;
         }
-        .remove-btn:hover {
-            background: #c82333 !important;
-        }
         .cart-total {
             background: white;
             border-radius: 15px;
             padding: 25px;
             text-align: center;
             margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-top: 3px solid #800000;
-        }
-        .cart-total strong {
-            font-size: 1.3em;
-            color: #5D1717;
-            display: block;
-            margin-bottom: 15px;
         }
         .checkout-btn {
             background: linear-gradient(135deg, #800000, #a52a2a);
@@ -102,22 +76,9 @@
             border: none;
             padding: 12px 30px;
             border-radius: 25px;
-            font-size: 1em;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
-        .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(128,0,0,0.3);
-        }
-        .empty-cart {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-            background: white;
-            border-radius: 15px;
-        }
-        .order-item {
+        .order-item, .favorite-item {
             background: white;
             border-radius: 15px;
             padding: 20px;
@@ -127,7 +88,6 @@
         .order-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 10px;
             padding-bottom: 10px;
             border-bottom: 1px solid #eee;
@@ -141,33 +101,16 @@
             border-radius: 20px;
             font-size: 0.8em;
         }
-        .favorite-item {
+        .empty-cart {
+            text-align: center;
+            padding: 50px;
+            color: #666;
             background: white;
             border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .add-to-cart-small {
-            background: #800000;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
         }
         @media (max-width: 600px) {
-            .cart-item {
-                flex-direction: column;
-                text-align: center;
-            }
-            .cart-item-image {
-                margin: 0 auto;
-            }
-            .cart-item-actions {
-                justify-content: center;
-                margin-top: 10px;
-            }
+            .cart-item { flex-direction: column; text-align: center; }
+            .cart-item-image { margin: 0 auto; }
         }
     </style>
 </head>
@@ -194,7 +137,6 @@
     <main class="content">
         <section class="profile-section">
             <h1>Личный кабинет</h1>
-            
             <div class="profile-info" id="profile-info"></div>
 
             <div class="profile-tabs">
@@ -206,23 +148,21 @@
             <div class="profile-content">
                 <div class="profile-tab-content active" id="orders-tab">
                     <h3>История заказов</h3>
-                    <div class="orders-list" id="orders-list"></div>
+                    <div id="orders-list"></div>
                 </div>
-
                 <div class="profile-tab-content" id="cart-tab">
                     <h3>Корзина покупок</h3>
                     <div id="cart-items"></div>
                     <div id="cart-total"></div>
                 </div>
-
                 <div class="profile-tab-content" id="favorites-tab">
                     <h3>Избранные товары</h3>
-                    <div class="favorites-list" id="favorites-list"></div>
+                    <div id="favorites-list"></div>
                 </div>
             </div>
 
             <div class="profile-actions">
-                <button class="logout-btn" onclick="logout()">Выйти из системы</button>
+                <button class="logout-btn" onclick="window.logout()">Выйти из системы</button>
             </div>
         </section>
     </main>
@@ -237,58 +177,112 @@
     </div>
 </footer>
 
-
-<script>
-    document.addEventListener('DOMContentLoaded', async function() {
-        await checkAuth();
-        await loadProfile();
-        await setupProfileTabs();
-        await loadCart();
-        await loadOrders();
-        await loadFavorites();
-    });
-
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getAuth, signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+    import { getFirestore, collection, getDocs, query, where, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyC92UNkrbU2KHUZzTtLQggOa1qpa2hvFbs",
+        authDomain: "magic-shop-285c1.firebaseapp.com",
+        projectId: "magic-shop-285c1",
+        storageBucket: "magic-shop-285c1.firebasestorage.app",
+        messagingSenderId: "189566179161",
+        appId: "1:189566179161:web:10b28c648af33cfd459e48"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    let currentUser = null;
+    
+    // Проверка авторизации
     async function checkAuth() {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
         if (isLoggedIn !== 'true') {
             alert('Пожалуйста, войдите в систему');
             window.location.href = 'auth.html';
-            return;
+            return false;
         }
-        currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    }
-
-    function loadProfile() {
-        const profileInfo = document.getElementById('profile-info');
         
+        const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (savedUser) {
+            const userDoc = await getDoc(doc(db, 'users', savedUser.id));
+            if (userDoc.exists()) {
+                currentUser = { id: savedUser.id, ...userDoc.data() };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            } else {
+                currentUser = savedUser;
+            }
+        }
+        return true;
+    }
+    
+    // Загрузка профиля
+    async function loadProfile() {
+        const profileInfo = document.getElementById('profile-info');
         if (currentUser) {
             profileInfo.innerHTML = `
                 <div class="user-card">
                     <h2>${escapeHtml(currentUser.name)}</h2>
                     <p><strong>Email:</strong> ${escapeHtml(currentUser.email)}</p>
                     <p><strong>Роль:</strong> ${currentUser.role === 'admin' ? '👑 Администратор' : '🧙 Волшебник'}</p>
-                    <p><strong>Дата регистрации:</strong> ${new Date(currentUser.registration_date).toLocaleDateString()}</p>
+                    <p><strong>Дата регистрации:</strong> ${new Date(currentUser.registrationDate).toLocaleDateString()}</p>
                 </div>
             `;
         }
     }
-
-    function setupProfileTabs() {
-        document.querySelectorAll('.profile-tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tab = btn.dataset.tab;
-                document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(`${tab}-tab`).classList.add('active');
-                
-                if (tab === 'cart') loadCart();
-                if (tab === 'orders') loadOrders();
-                if (tab === 'favorites') loadFavorites();
+    
+    // Загрузка заказов из Firestore
+    async function loadOrders() {
+        try {
+            const q = query(collection(db, 'orders'), where('userId', '==', currentUser.id));
+            const querySnapshot = await getDocs(q);
+            const orders = [];
+            querySnapshot.forEach((doc) => {
+                orders.push({ id: doc.id, ...doc.data() });
             });
-        });
+            
+            const container = document.getElementById('orders-list');
+            const statusMap = {
+                'pending': '⏳ Обрабатывается',
+                'processing': '📦 В обработке',
+                'delivered': '✅ Доставлен',
+                'cancelled': '❌ Отменен'
+            };
+            
+            if (orders.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding:40px;">📭 У вас пока нет заказов</p>';
+                return;
+            }
+            
+            container.innerHTML = orders.slice().reverse().map(order => `
+                <div class="order-item">
+                    <div class="order-header">
+                        <span class="order-id">📄 Заказ №${order.id.substring(0, 8)}</span>
+                        <span class="order-date">📅 ${new Date(order.date).toLocaleDateString()}</span>
+                        <span class="order-status">${statusMap[order.status] || '⏳ Обрабатывается'}</span>
+                    </div>
+                    <div style="margin:10px 0; padding:10px; background:#f5f5f5; border-radius:8px;">
+                        ${order.items ? order.items.map(item => `
+                            <div style="display:flex; justify-content:space-between; padding:5px 0;">
+                                <span>${escapeHtml(item.title)} x ${item.quantity}</span>
+                                <span>${item.price * item.quantity} ₽</span>
+                            </div>
+                        `).join('') : 'Нет товаров'}
+                    </div>
+                    ${order.address ? `<div style="margin:10px 0;">📍 Адрес: ${escapeHtml(order.address)}</div>` : ''}
+                    <div class="order-total">💰 Итого: ${order.total} рублей</div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error loading orders:', error);
+            document.getElementById('orders-list').innerHTML = '<p style="text-align:center; padding:40px;">❌ Ошибка загрузки заказов</p>';
+        }
     }
-
+    
+    // Загрузка корзины из localStorage
     function loadCart() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const container = document.getElementById('cart-items');
@@ -299,45 +293,42 @@
             totalContainer.innerHTML = `
                 <div class="cart-total">
                     <strong>Общая сумма: 0 рублей</strong>
-                    <button class="checkout-btn" onclick="checkout()">Оформить заказ</button>
+                    <button class="checkout-btn" onclick="window.checkout()">Оформить заказ</button>
                 </div>
             `;
             return;
         }
-
+        
         let total = 0;
         container.innerHTML = cart.map((item, index) => {
             const itemTotal = item.price * item.quantity;
             total += itemTotal;
-            const imageUrl = item.imageUrl || 'img/placeholder.jpg';
-            
             return `
-                <div class="cart-item" data-index="${index}">
-                    <div class="cart-item-image" style="background-image: url('${imageUrl}')"></div>
+                <div class="cart-item">
+                    <div class="cart-item-image" style="background-image: url('${item.imageUrl || 'img/placeholder.jpg'}')"></div>
                     <div class="cart-item-info">
                         <h4>${escapeHtml(item.title)}</h4>
-                        <p>${escapeHtml(item.description || 'Волшебный товар')}</p>
                         <div class="cart-item-price">${item.price} ₽ × ${item.quantity} = ${itemTotal} ₽</div>
                     </div>
                     <div class="cart-item-actions">
-                        <button onclick="updateQuantity(${index}, -1)">−</button>
+                        <button onclick="window.updateQuantity(${index}, -1)">−</button>
                         <span>${item.quantity}</span>
-                        <button onclick="updateQuantity(${index}, 1)">+</button>
-                        <button class="remove-btn" onclick="removeFromCart(${index})">🗑️ Удалить</button>
+                        <button onclick="window.updateQuantity(${index}, 1)">+</button>
+                        <button class="remove-btn" onclick="window.removeFromCart(${index})">🗑️ Удалить</button>
                     </div>
                 </div>
             `;
         }).join('');
-
+        
         totalContainer.innerHTML = `
             <div class="cart-total">
                 <strong>💰 Общая сумма: ${total} рублей</strong>
-                <button class="checkout-btn" onclick="checkout()">📦 Оформить заказ</button>
+                <button class="checkout-btn" onclick="window.checkout()">📦 Оформить заказ</button>
             </div>
         `;
     }
-
-    function updateQuantity(index, change) {
+    
+    window.updateQuantity = function(index, change) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         if (cart[index]) {
             cart[index].quantity += change;
@@ -347,150 +338,134 @@
             localStorage.setItem('cart', JSON.stringify(cart));
             loadCart();
         }
-    }
-
-    function removeFromCart(index) {
+    };
+    
+    window.removeFromCart = function(index) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         cart.splice(index, 1);
         localStorage.setItem('cart', JSON.stringify(cart));
         loadCart();
-    }
-
-    async function checkout() {
+    };
+    
+    window.checkout = async function() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         if (cart.length === 0) {
             alert('Корзина пуста');
             return;
         }
-
+        
         const address = prompt('Введите адрес доставки:');
         if (!address) return;
-
+        
         const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
+        
         try {
-            const orderId = await createOrder(currentUser.id, cart, total, address);
+            const { addDoc } = await import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js');
+            const docRef = await addDoc(collection(db, 'orders'), {
+                userId: currentUser.id,
+                items: cart,
+                total: total,
+                address: address,
+                status: 'pending',
+                date: new Date().toISOString()
+            });
+            
             localStorage.setItem('cart', '[]');
-            alert(`✅ Заказ оформлен!\n📦 Сумма: ${total} рублей\n📍 Адрес: ${address}\n🆔 Номер заказа: ${orderId}`);
+            alert(`✅ Заказ оформлен!\n💰 Сумма: ${total} рублей\n📍 Адрес: ${address}`);
             loadCart();
             await loadOrders();
             document.querySelector('.profile-tab-btn[data-tab="orders"]').click();
         } catch (error) {
-            alert('❌ Ошибка оформления заказа: ' + error.message);
+            alert('❌ Ошибка оформления: ' + error.message);
         }
-    }
-
-    async function loadOrders() {
-        try {
-            const orders = await getUserOrders(currentUser.id);
-            const container = document.getElementById('orders-list');
-            
-            if (orders.length === 0) {
-                container.innerHTML = '<p style="text-align:center; padding:40px;">📭 У вас пока нет заказов</p>';
-                return;
-            }
-            
-            const statusMap = {
-                'pending': '⏳ Обрабатывается',
-                'processing': '📦 В обработке',
-                'delivered': '✅ Доставлен',
-                'cancelled': '❌ Отменен'
-            };
-            
-            container.innerHTML = orders.slice().reverse().map(order => `
-                <div class="order-item">
-                    <div class="order-header">
-                        <span class="order-id">📄 Заказ №${order.id}</span>
-                        <span class="order-date">📅 ${new Date(order.order_date).toLocaleDateString()}</span>
-                        <span class="order-status">${statusMap[order.status] || '⏳ Обрабатывается'}</span>
-                    </div>
-                    <div class="order-items" style="margin:10px 0; padding:10px; background:#f5f5f5; border-radius:8px;">
-                        ${order.items.map(item => `
-                            <div style="display:flex; justify-content:space-between; padding:5px 0;">
-                                <span>${escapeHtml(item.product_name)} x ${item.quantity}</span>
-                                <span>${item.price * item.quantity} ₽</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                    ${order.address ? `<div style="margin:10px 0;">📍 Адрес доставки: ${escapeHtml(order.address)}</div>` : ''}
-                    <div class="order-total">💰 Итого: ${order.total_amount} рублей</div>
-                </div>
-            `).join('');
-        } catch (error) {
-            console.error('Error loading orders:', error);
-            document.getElementById('orders-list').innerHTML = '<p style="text-align:center; padding:40px;">❌ Ошибка загрузки заказов</p>';
-        }
-    }
-
+    };
+    
+    // Загрузка избранного из Firestore
     async function loadFavorites() {
         try {
-            const favorites = await getFavorites(currentUser.id);
-            const container = document.getElementById('favorites-list');
+            const q = query(collection(db, 'favorites'), where('userId', '==', currentUser.id));
+            const querySnapshot = await getDocs(q);
+            const favorites = [];
+            querySnapshot.forEach((doc) => {
+                favorites.push({ id: doc.id, ...doc.data() });
+            });
             
+            const container = document.getElementById('favorites-list');
             if (favorites.length === 0) {
                 container.innerHTML = '<p style="text-align:center; padding:40px;">⭐ У вас пока нет избранных товаров</p>';
                 return;
             }
             
-            container.innerHTML = favorites.map((item, index) => `
+            container.innerHTML = favorites.map(item => `
                 <div class="favorite-item">
                     <div style="display:flex; gap:15px; flex-wrap:wrap;">
-                        <div style="width:80px; height:80px; background-image:url('${item.product_image || 'img/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:10px;"></div>
+                        <div style="width:80px; height:80px; background-image:url('${item.productImage || 'img/placeholder.jpg'}'); background-size:cover; background-position:center; border-radius:10px;"></div>
                         <div style="flex:1;">
-                            <h4>${escapeHtml(item.product_name)}</h4>
-                            <div class="favorite-price">${item.product_price} рублей</div>
+                            <h4>${escapeHtml(item.productName)}</h4>
+                            <div class="favorite-price">${item.productPrice} рублей</div>
                         </div>
                     </div>
                     <div style="display:flex; gap:10px; margin-top:15px;">
-                        <button class="add-to-cart-small" onclick="addFavoriteToCart('${escapeHtml(item.product_name)}', ${item.product_price})">🛒 В корзину</button>
-                        <button class="remove-btn" onclick="removeFavorite('${escapeHtml(item.product_name)}')" style="background:#dc3545; color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">🗑️ Удалить</button>
+                        <button class="add-to-cart-small" onclick="window.addFavoriteToCart('${escapeHtml(item.productName)}', ${item.productPrice})">🛒 В корзину</button>
                     </div>
                 </div>
             `).join('');
         } catch (error) {
             console.error('Error loading favorites:', error);
+            document.getElementById('favorites-list').innerHTML = '<p style="text-align:center; padding:40px;">❌ Ошибка загрузки</p>';
         }
     }
-
-    function addFavoriteToCart(productName, price) {
+    
+    window.addFavoriteToCart = function(productName, price) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const existingItem = cart.find(item => item.title === productName);
-        
-        if (existingItem) {
-            existingItem.quantity += 1;
+        const existing = cart.find(item => item.title === productName);
+        if (existing) {
+            existing.quantity += 1;
         } else {
-            cart.push({
-                title: productName,
-                description: 'Избранный товар',
-                price: price,
-                quantity: 1,
-                imageUrl: 'img/placeholder.jpg'
-            });
+            cart.push({ title: productName, description: 'Избранный товар', price: price, quantity: 1, imageUrl: 'img/placeholder.jpg' });
         }
-        
         localStorage.setItem('cart', JSON.stringify(cart));
         alert('✅ Товар добавлен в корзину!');
-    }
-
-    async function removeFavorite(productName) {
-        try {
-            await removeFromFavorites(currentUser.id, productName);
-            await loadFavorites();
-            alert('✅ Товар удален из избранного');
-        } catch (error) {
-            alert('❌ Ошибка удаления');
-        }
-    }
-
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
+    };
+    
+    window.logout = async function() {
+        await signOut(auth);
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+        alert('👋 Вы вышли из системы');
+        window.location.href = 'index.html';
+    };
+    
+    function setupTabs() {
+        document.querySelectorAll('.profile-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.profile-tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`${tab}-tab`).classList.add('active');
+                if (tab === 'cart') loadCart();
+                if (tab === 'orders') loadOrders();
+                if (tab === 'favorites') loadFavorites();
+            });
         });
     }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+    
+    // Запуск
+    (async function() {
+        const authOk = await checkAuth();
+        if (!authOk) return;
+        await loadProfile();
+        await loadOrders();
+        loadCart();
+        await loadFavorites();
+        setupTabs();
+    })();
 </script>
 </body>
 </html>
