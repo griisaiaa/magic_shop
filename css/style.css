@@ -115,14 +115,14 @@ body {
     min-width: 0;
 }
 
-/* ===== ГАЛЕРЕЯ (ПОЛНОЦЕННЫЙ СКРОЛЛ ДЛЯ ПК) ===== */
+/* ===== ГАЛЕРЕЯ - ПОЛНОСТЬЮ ВОССТАНОВЛЕНА ===== */
 .scroll-gallery {
     width: 280px;
     flex-shrink: 0;
     background: #D9D9D9;
     border-radius: 20px;
     padding: 15px;
-    height: 700px;
+    height: 650px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -241,7 +241,7 @@ body {
     border-radius: 25px;
     font-size: 14px;
     font-weight: bold;
-    backdrop-filter: blur(2px);
+    white-space: nowrap;
 }
 
 /* ===== FOOTER ===== */
@@ -712,8 +712,8 @@ body {
     text-align: center;
 }
 
-/* ===== ПЛАНШЕТЫ (768px - 1023px) ===== */
-@media (max-width: 1023px) {
+/* ===== ПЛАНШЕТЫ ===== */
+@media (min-width: 768px) and (max-width: 1023px) {
     .wrapper {
         flex-direction: column;
     }
@@ -724,39 +724,42 @@ body {
         overflow-x: auto;
         overflow-y: hidden;
         height: auto;
+        min-height: auto;
         gap: 15px;
     }
     
     .scroll-gallery .photo {
-        min-width: 200px;
-        height: 150px;
+        min-width: 220px;
+        height: 160px;
     }
     
     .products {
         grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
     }
 }
 
-/* ===== ТЕЛЕФОНЫ (375px - 767px) - ОСНОВНЫЕ ПРАВКИ ===== */
+/* ===== ТЕЛЕФОНЫ (ДО 767px) - ПОЛНАЯ ПЕРЕРАБОТКА ===== */
 @media (max-width: 767px) {
+    /* Шапка */
     .header {
         flex-direction: column;
-        padding: 15px 20px;
+        padding: 15px;
     }
     
     .logo {
-        width: 100px;
-        height: 80px;
+        width: 80px;
+        height: 70px;
     }
     
     .nav {
         width: 100%;
-        gap: 8px;
+        gap: 5px;
     }
     
     .nav a {
-        font-size: 14px;
-        padding: 6px 12px;
+        font-size: 13px;
+        padding: 5px 10px;
     }
     
     .search {
@@ -765,44 +768,77 @@ body {
     
     .search input {
         flex: 1;
-        width: auto;
     }
     
+    /* Основной контент */
     .wrapper {
-        padding: 0 12px;
-        margin: 15px auto;
-    }
-    
-    .welcome p {
-        font-size: 18px;
-    }
-    
-    .details-cards {
         flex-direction: column;
+        padding: 0 10px;
+        margin: 15px auto;
         gap: 15px;
     }
     
-    .detail-card {
-        height: 150px;
+    /* Галерея - горизонтальная на телефонах */
+    .scroll-gallery {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        height: auto;
+        min-height: auto;
+        padding: 12px;
+        gap: 12px;
     }
     
-    /* ГЛАВНАЯ - ТОВАРЫ В 2 АККУРАТНЫХ СТОЛБЦА */
+    .scroll-gallery .photo {
+        min-width: 160px;
+        height: 120px;
+    }
+    
+    /* Приветствие */
+    .welcome {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .welcome p {
+        font-size: 16px;
+    }
+    
+    /* Категории */
+    .details-cards {
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+    
+    .detail-card {
+        height: 130px;
+    }
+    
+    .detail-btn {
+        height: 40px;
+        font-size: 14px;
+    }
+    
+    /* ТОВАРЫ НА ГЛАВНОЙ - 2 СТОЛБЦА, КОМПАКТНО */
     .products {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-bottom: 30px;
+        gap: 10px;
+        margin-bottom: 25px;
     }
     
     .product-card {
-        aspect-ratio: 1 / 1;
+        aspect-ratio: 3 / 2;
         border-radius: 12px;
     }
     
     .buy-label {
-        font-size: 11px;
-        padding: 4px 10px;
-        bottom: 8px;
+        font-size: 10px;
+        padding: 3px 8px;
+        bottom: 6px;
+        white-space: nowrap;
     }
     
     /* Страница товаров */
@@ -811,32 +847,56 @@ body {
         gap: 15px;
     }
     
+    .category-filter {
+        gap: 8px;
+    }
+    
+    .filter-btn {
+        padding: 6px 15px;
+        font-size: 12px;
+    }
+    
     /* Модалка */
+    .modal-content {
+        margin: 20% auto;
+        padding: 20px;
+    }
+    
     .product-modal-body {
         flex-direction: column;
         align-items: center;
-        text-align: center;
     }
     
     .product-image {
-        width: 150px;
-        height: 150px;
+        width: 140px;
+        height: 140px;
     }
     
     /* Профиль */
     .profile-tabs {
         flex-direction: column;
-        border-radius: 25px;
-        gap: 8px;
+        border-radius: 20px;
+        gap: 5px;
     }
     
     .profile-tab-btn {
         padding: 10px;
+        font-size: 14px;
+    }
+    
+    .profile-content {
+        padding: 15px;
     }
     
     .cart-item {
         flex-direction: column;
         text-align: center;
+    }
+    
+    .cart-item-image {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto;
     }
     
     .cart-item-actions {
@@ -846,6 +906,11 @@ body {
     /* Админка */
     .admin-cards {
         grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .admin-card {
+        padding: 20px;
     }
     
     .stats-grid {
@@ -855,10 +920,15 @@ body {
     /* Доставка и акции */
     .delivery-info {
         grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .delivery-method, .delivery-terms {
+        padding: 20px;
     }
     
     .promotion-card {
-        padding: 20px;
+        padding: 18px;
     }
     
     .promotion-badge {
@@ -868,36 +938,24 @@ body {
     }
 }
 
-/* ===== ОЧЕНЬ МАЛЕНЬКИЕ ТЕЛЕФОНЫ (до 480px) ===== */
-@media (max-width: 480px) {
-    /* Еще более компактные товары на главной */
+/* ===== ОЧЕНЬ МАЛЕНЬКИЕ ТЕЛЕФОНЫ (ДО 400px) ===== */
+@media (max-width: 400px) {
     .products {
-        gap: 10px;
+        gap: 8px;
     }
     
     .product-card {
-        aspect-ratio: 4 / 3;
+        aspect-ratio: 1 / 1;
     }
     
     .buy-label {
-        font-size: 10px;
-        padding: 3px 8px;
-        bottom: 6px;
+        font-size: 9px;
+        padding: 2px 6px;
     }
     
-    .modal-content {
-        padding: 20px;
-        margin: 20% auto;
-    }
-    
-    .filter-btn {
-        padding: 6px 16px;
-        font-size: 13px;
-    }
-    
-    .order-header {
-        flex-direction: column;
-        gap: 8px;
+    .nav a {
+        font-size: 11px;
+        padding: 4px 8px;
     }
 }
 
@@ -928,8 +986,8 @@ body {
 .auth-container {
     background: #D9D9D9;
     border-radius: 20px;
-    padding: 30px;
-    max-width: 500px;
+    padding: 25px;
+    max-width: 450px;
     margin: 0 auto;
 }
 
