@@ -172,37 +172,12 @@ body {
     font-weight: bold;
 }
 
-/* ===== МОБИЛЬНЫЕ КНОПКИ КАТЕГОРИЙ ===== */
+/* ===== МОБИЛЬНЫЕ КНОПКИ КАТЕГОРИЙ (СКРЫТЫ НА ПК) ===== */
 .mobile-categories {
     display: none;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 25px;
 }
 
-.mobile-cat-btn {
-    background: white;
-    border: 2px solid #800000;
-    color: #800000;
-    padding: 10px 18px;
-    border-radius: 35px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.mobile-cat-btn.all-products {
-    background: #800000;
-    color: white;
-}
-
-.mobile-cat-btn:active {
-    transform: scale(0.96);
-}
-
-/* ===== КАРТОЧКИ КАТЕГОРИЙ (ДЕСКТОП) ===== */
+/* ===== КАРТОЧКИ КАТЕГОРИЙ (ТОЛЬКО ДЛЯ ПК) ===== */
 .details-cards {
     display: flex;
     gap: 20px;
@@ -835,9 +810,34 @@ body {
         font-size: 16px;
     }
     
-    /* МОБИЛЬНЫЕ КНОПКИ - ПОКАЗЫВАЕМ */
+    /* МОБИЛЬНЫЕ КНОПКИ - ПОКАЗЫВАЕМ ТОЛЬКО НА ТЕЛЕФОНЕ */
     .mobile-categories {
         display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 25px;
+    }
+    
+    .mobile-cat-btn {
+        background: white;
+        border: 2px solid #800000;
+        color: #800000;
+        padding: 10px 18px;
+        border-radius: 35px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .mobile-cat-btn.all-products {
+        background: #800000;
+        color: white;
+    }
+    
+    .mobile-cat-btn:active {
+        transform: scale(0.96);
     }
     
     /* Скрываем десктопные карточки категорий на телефоне */
