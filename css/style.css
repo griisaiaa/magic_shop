@@ -115,7 +115,7 @@ body {
     min-width: 0;
 }
 
-/* ===== ГАЛЕРЕЯ - ПОЛНОСТЬЮ ВОССТАНОВЛЕНА ===== */
+/* ===== ГАЛЕРЕЯ ===== */
 .scroll-gallery {
     width: 280px;
     flex-shrink: 0;
@@ -172,7 +172,37 @@ body {
     font-weight: bold;
 }
 
-/* ===== КАРТОЧКИ КАТЕГОРИЙ ===== */
+/* ===== МОБИЛЬНЫЕ КНОПКИ КАТЕГОРИЙ ===== */
+.mobile-categories {
+    display: none;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.mobile-cat-btn {
+    background: white;
+    border: 2px solid #800000;
+    color: #800000;
+    padding: 10px 18px;
+    border-radius: 35px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mobile-cat-btn.all-products {
+    background: #800000;
+    color: white;
+}
+
+.mobile-cat-btn:active {
+    transform: scale(0.96);
+}
+
+/* ===== КАРТОЧКИ КАТЕГОРИЙ (ДЕСКТОП) ===== */
 .details-cards {
     display: flex;
     gap: 20px;
@@ -739,7 +769,7 @@ body {
     }
 }
 
-/* ===== ТЕЛЕФОНЫ (ДО 767px) - ПОЛНАЯ ПЕРЕРАБОТКА ===== */
+/* ===== ТЕЛЕФОНЫ (ДО 767px) ===== */
 @media (max-width: 767px) {
     /* Шапка */
     .header {
@@ -778,7 +808,7 @@ body {
         gap: 15px;
     }
     
-    /* Галерея - горизонтальная на телефонах */
+    /* Галерея - горизонтальная */
     .scroll-gallery {
         width: 100%;
         flex-direction: row;
@@ -805,23 +835,17 @@ body {
         font-size: 16px;
     }
     
-    /* Категории */
+    /* МОБИЛЬНЫЕ КНОПКИ - ПОКАЗЫВАЕМ */
+    .mobile-categories {
+        display: flex;
+    }
+    
+    /* Скрываем десктопные карточки категорий на телефоне */
     .details-cards {
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 25px;
+        display: none;
     }
     
-    .detail-card {
-        height: 130px;
-    }
-    
-    .detail-btn {
-        height: 40px;
-        font-size: 14px;
-    }
-    
-    /* ТОВАРЫ НА ГЛАВНОЙ - 2 СТОЛБЦА, КОМПАКТНО */
+    /* ТОВАРЫ НА ГЛАВНОЙ - 2 СТОЛБЦА */
     .products {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -956,6 +980,11 @@ body {
     .nav a {
         font-size: 11px;
         padding: 4px 8px;
+    }
+    
+    .mobile-cat-btn {
+        padding: 6px 12px;
+        font-size: 12px;
     }
 }
 
